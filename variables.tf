@@ -45,6 +45,12 @@ variable "backends" {
     healthchecks       = optional(list(string))
     group              = optional(string)
     groups             = optional(list(string)) # List of Instance Group or NEG IDs
+    instance_groups = optional(list(object({
+      id         = optional(string)
+      project_id = optional(string)
+      zone       = optional(string)
+      name       = optional(string)
+    })))
     rnegs = optional(list(object({
       id         = optional(string)
       project_id = optional(string)
@@ -65,12 +71,6 @@ variable "backends" {
       ip_address = optional(string)
       port       = optional(number)
     }))
-    instance_groups = optional(list(object({
-      id         = optional(string)
-      project_id = optional(string)
-      zone       = optional(string)
-      name       = optional(string)
-    })))
     iap = optional(object({
       application_title = optional(string)
       support_email     = optional(string)

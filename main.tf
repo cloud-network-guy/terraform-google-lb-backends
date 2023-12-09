@@ -60,10 +60,12 @@ locals {
     merge(v, {
       protocol  = "TCP"
       hc_prefix = "projects/${v.project_id}/${v.is_regional ? "regions/${v.region}" : "global"}/healthChecks"
-      instance_groups = length(v.groups) > 0 ? [] : [for ig in v.instance_groups : coalesce(
+      instance_groups = length(v.groups) > 0 ? [] : [for ig in v.instance_groups :
+      try(coalesce(
         ig.id,
         ig.zone != null && ig.name != null ? "projects/${ig.project_id}/zones/${ig.zone}/instanceGroups/${ig.name}" : null,
-      )],
+      ), [])
+      ],
     })
   ]
   ____backend_services = flatten([for i, v in local.___backend_services :
@@ -82,7 +84,7 @@ locals {
       load_balancing_scheme           = v.is_internal ? "INTERNAL" : "EXTERNAL"
       connection_draining_timeout_sec = coalesce(v.connection_draining_timeout, 300)
       max_connections                 = v.protocol == "TCP" && !v.is_regional ? coalesce(v.max_connections, 8192) : null
-      groups = flatten(coalescelist(v.groups, v.instance_groups))
+      groups = flatten(coalesce(v.groups, v.instance_groups))
       health_checks = flatten([for health_check in v.health_checks :
         [startswith(health_check, "projects/") ? health_check : "${v.hc_prefix}/${health_check}"]
       ])
