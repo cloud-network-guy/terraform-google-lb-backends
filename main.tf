@@ -61,10 +61,10 @@ locals {
       protocol  = "TCP"
       hc_prefix = "projects/${v.project_id}/${v.is_regional ? "regions/${v.region}" : "global"}/healthChecks"
       instance_groups = length(v.groups) > 0 ? [] : [for ig in v.instance_groups :
-      try(coalesce(
-        ig.id,
-        ig.zone != null && ig.name != null ? "projects/${ig.project_id}/zones/${ig.zone}/instanceGroups/${ig.name}" : null,
-      ), [])
+        try(coalesce(
+          ig.id,
+          ig.zone != null && ig.name != null ? "projects/${ig.project_id}/zones/${ig.zone}/instanceGroups/${ig.name}" : null,
+        ), [])
       ],
     })
   ]
@@ -84,7 +84,7 @@ locals {
       load_balancing_scheme           = v.is_internal ? "INTERNAL" : "EXTERNAL"
       connection_draining_timeout_sec = coalesce(v.connection_draining_timeout, 300)
       max_connections                 = v.protocol == "TCP" && !v.is_regional ? coalesce(v.max_connections, 8192) : null
-      groups = flatten(coalesce(v.groups, v.instance_groups))
+      groups                          = flatten(coalesce(v.groups, v.instance_groups))
       health_checks = flatten([for health_check in v.health_checks :
         [startswith(health_check, "projects/") ? health_check : "${v.hc_prefix}/${health_check}"]
       ])
@@ -167,7 +167,7 @@ resource "google_compute_backend_service" "default" {
       }
     }
   }
- depends_on = [ null_resource.backend_services]
+  depends_on = [null_resource.backend_services]
 }
 
 # Regional Backend Service
@@ -208,6 +208,6 @@ resource "google_compute_region_backend_service" "default" {
       minimum_ring_size = 1
     }
   }
-  region = each.value.region
- depends_on = [ null_resource.backend_services]
+  region     = each.value.region
+  depends_on = [null_resource.backend_services]
 }

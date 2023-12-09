@@ -52,11 +52,11 @@ variable "backends" {
       name       = optional(string)
     })))
     rnegs = optional(list(object({
-      id         = optional(string)
-      project_id = optional(string)
+      id                    = optional(string)
+      project_id            = optional(string)
       region                = optional(string)
       psc_target            = optional(string)
-      network              = optional(string)
+      network               = optional(string)
       subnet                = optional(string)
       cloud_run_name        = optional(string) # Cloud run service name
       app_engine_name       = optional(string) # App Engine service name
