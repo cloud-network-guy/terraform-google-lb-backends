@@ -93,6 +93,11 @@ locals {
   ]
 }
 
+# Generate a null resource for each Backend, so that an existing one is completely destroyed before attempting create
+resource "null_resource" "backend_services" {
+  for_each = { for i, v in local.backend_services : v.index_key => true }
+}
+
 # Global Backend Service
 resource "google_compute_backend_service" "default" {
   for_each                        = { for i, v in local.backend_services : v.index_key => v if !v.is_regional }
@@ -162,6 +167,7 @@ resource "google_compute_backend_service" "default" {
       }
     }
   }
+ depends_on = [ null_resource.backend_services]
 }
 
 # Regional Backend Service
@@ -203,4 +209,5 @@ resource "google_compute_region_backend_service" "default" {
     }
   }
   region = each.value.region
+ depends_on = [ null_resource.backend_services]
 }
