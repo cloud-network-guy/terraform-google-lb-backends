@@ -5,6 +5,7 @@ output "backend_services" {
       id        = v.is_regional ? google_compute_region_backend_service.default[v.index_key].id : google_compute_backend_service.default[v.index_key].id
       name      = v.name
       type      = v.type
+      protocol  = v.protocol
       region    = v.is_regional ? lookup(v, "region", "error") : "global"
       groups    = v.groups
     }
